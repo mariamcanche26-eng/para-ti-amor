@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para ti con amor ❤️</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        romantic: {
+                            50: '#fff0f3',
+                            100: '#ffccd5',
+                            200: '#ffb3c1',
+                            300: '#ff85a1',
+                            400: '#ff5c8a',
+                            500: '#ff477e',
+                            600: '#e01e5a',
+                            700: '#c9184a',
+                            800: '#a61c3c',
+                            gold: '#d4af37',
+                            goldLight: '#f9f1d8'
+                        }
+                    },
+                    fontFamily: {
+                        cursive: ['"Dancing Script"', 'cursive'],
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .floating-heart {
+            position: fixed;
+            bottom: -50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: float linear infinite;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 182, 193, 0.4);
+        }
+
+        .coupon-ticket {
+            position: relative;
+            background: radial-gradient(circle at 0 50%, transparent 12px, #ffffff 13px) 0 0,
+                        radial-gradient(circle at 100% 50%, transparent 12px, #ffffff 13px) 0 0;
+            background-size: 100% 100%;
+        }
+
+        .coupon-ticket::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 12px;
+            height: 24px;
+            background-color: #fff0f3;
+            border-radius: 0 12px 12px 0;
+            transform: translateY(-50%);
+            border: 1px solid rgba(255, 182, 193, 0.5);
+            border-left: none;
+        }
+
+        .coupon-ticket::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            width: 12px;
+            height: 24px;
+            background-color: #fff0f3;
+            border-radius: 12px 0 0 12px;
+            transform: translateY(-50%);
+            border: 1px solid rgba(255, 182, 193, 0.5);
+            border-right: none;
+        }
+
+        .stamp-redeemed {
+            transform: rotate(-12deg) scale(1);
+            animation: stampAnim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes stampAnim {
+            0% { transform: rotate(0deg) scale(3); opacity: 0; }
+            100% { transform: rotate(-12deg) scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-romantic-50 via-pink-100 to-romantic-100 min-h-screen font-sans text-gray-800 relative overflow-x-hidden pb-12">
+
+    <div id="hearts-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <div class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+
+        <!-- HEADER SECTION -->
+        <header class="text-center mb-8">
+            <div class="inline-block p-2 px-4 rounded-full bg-white/70 backdrop-blur-md border border-romantic-200 shadow-sm mb-3">
+                <span class="text-romantic-600 font-bold text-sm tracking-wide uppercase"><i class="fa-solid fa-heart text-romantic-500 mr-1.5"></i> Regalo Especial</span>
+            </div>
+            <h1 class="text-4xl sm:text-6xl font-cursive font-bold text-romantic-700 drop-shadow-sm mb-3">
+                Para ti con amor ❤️
+            </h1>
+            <p class="text-gray-600 max-w-xl mx-auto text-sm sm:text-base leading-relaxed">
+                ¡Hola mi amor! 💕 He creado esta colección especial de cupones digitales solo para ti. Puedes canjearlos cuando quieras y se me enviará una notificación a WhatsApp para hacerlos válidos.
+            </p>
+        </header>
+
+        <!-- CONFIGURATION BAR -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm md:col-span-2">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-romantic-500 to-romantic-400 text-white flex items-center justify-center text-xl shadow-md shadow-romantic-300">
+                        <i class="fa-solid fa-ticket"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xs uppercase tracking-wider text-gray-500 font-semibold">Estado de Cupones</h3>
+                        <p class="text-lg font-bold text-gray-800">
+                            Disponibles: <span id="count-active" class="text-romantic-600 font-extrabold">0</span> 
+                            <span class="text-gray-300 mx-1.5">|</span> 
+                            Canjeados: <span id="count-redeemed" class="text-gray-500 font-bold">0</span>
+                        </p>
+                    </div>
+                </div>
+                <button onclick="openHistoryModal()" class="px-3 py-2 text-xs font-semibold text-romantic-700 hover:bg-romantic-100/60 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-clock-rotate-left text-sm"></i>
+                    <span class="hidden sm:inline">Historial</span>
+                </button>
+            </div>
+
+            <div class="glass-card rounded-2xl p-4 sm:p-5 flex items-center justify-between shadow-sm">
+                <div class="flex items-center space-x-3 w-full">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-lg shadow-md shrink-0">
+                        <i class="fa-brands fa-whatsapp"></i>
+                    </div>
+                    <div class="flex-grow min-w-0">
+                        <label for="phone-input" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5">Notificar a (WhatsApp)</label>
+                        <input type="tel" id="phone-input" placeholder="Ej. 5219991234567" 
+                               class="w-full bg-white/80 border border-gray-200 rounded-lg px-2.5 py-1 text-xs focus:ring-2 focus:ring-romantic-400 focus:outline-none transition"
+                               onchange="savePhoneNumber(this.value)">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span>Mis Cupones</span>
+                <span class="text-xs font-normal text-gray-500">(Haz clic en canjear)</span>
+            </h2>
+            <button onclick="openCreateModal()" class="bg-gradient-to-r from-romantic-500 to-romantic-600 hover:from-romantic-600 hover:to-romantic-700 text-white font-semibold text-xs sm:text-sm px-4 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 transform active:scale-95">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>Crear Cupón</span>
+            </button>
+        </div>
+
+        <!-- COUPONS GRID -->
+        <div id="coupons-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        </div>
+
+        <footer class="text-center text-xs sm:text-sm text-gray-500 mt-12 pb-6 border-t border-romantic-200/60 pt-6">
+            <p class="flex items-center justify-center gap-1">
+                Hecho con <i class="fa-solid fa-heart text-romantic-500 animate-pulse"></i> especialmente para el novio más lindo del mundo.
+            </p>
+        </footer>
+    </div>
+
+    <!-- MODAL: REDEEM CONFIRMATION -->
+    <div id="modal-redeem" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-romantic-200 transform transition-all scale-95 opacity-0 duration-300" id="modal-redeem-content">
+            <button onclick="closeRedeemModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-romantic-100 text-romantic-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 shadow-inner">
+                    🎟️
+                </div>
+                <h3 class="text-2xl font-bold text-gray-800 font-cursive" id="modal-coupon-title">Nombre del Cupón</h3>
+                <p class="text-xs text-gray-500 mt-1" id="modal-coupon-desc">Descripción del cupón</p>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">¿Quieres agregar una nota extra? (Opcional):</label>
+                    <textarea id="modal-custom-note" rows="2" placeholder="Ej: ¡Quiero hacerlo válido hoy en la noche! ❤️" class="w-full text-xs p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-romantic-400 focus:outline-none resize-none"></textarea>
+                </div>
+                <div class="bg-romantic-50 rounded-xl p-3 border border-romantic-200 text-xs text-romantic-800 flex items-start gap-2">
+                    <i class="fa-brands fa-whatsapp text-emerald-600 text-base shrink-0 mt-0.5"></i>
+                    <span>Al confirmar, se marcará como canjeado y se abrirá WhatsApp con el mensaje para tu novia.</span>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeRedeemModal()" class="w-1/2 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition">Cancelar</button>
+                <button id="btn-confirm-redeem" onclick="confirmRedeem()" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-semibold text-xs shadow-md transition flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span>¡Canjear Ahora!</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CREATE CUSTOM COUPON -->
+    <div id="modal-create" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-romantic-200">
+            <button onclick="closeCreateModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-12 h-12 bg-romantic-100 text-romantic-600 rounded-2xl flex items-center justify-center text-xl mx-auto mb-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800">Crear mi Propio Cupón</h3>
+                <p class="text-xs text-gray-500 mt-0.5">Pide algo especial que se te ocurra</p>
+            </div>
+
+            <form onsubmit="handleCreateCoupon(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Título del Cupón:</label>
+                    <input type="text" id="new-title" required placeholder="Ej. Vale por un abrazo de 5 minutos" class="w-full text-xs p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-romantic-400 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Descripción / Detalles:</label>
+                    <textarea id="new-desc" required rows="2" placeholder="Ej. Válido a cualquier hora del día..." class="w-full text-xs p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-romantic-400 focus:outline-none resize-none"></textarea>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-600 mb-1">Elige un Ícono o Emoji:</label>
+                    <select id="new-icon" class="w-full text-xs p-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-romantic-400 focus:outline-none bg-white">
+                        <option value="✨">✨ Magia / Especial</option>
+                        <option value="🍕">🍕 Comida / Antojo</option>
+                        <option value="🎬">🎬 Películas / Series</option>
+                        <option value="💆‍♂️">💆‍♂️ Masaje / Relax</option>
+                        <option value="🧸">🧸 Tarde familiar / Jugar con Fabiancito</option>
+                        <option value="🍦">🍦 Postre / Dulce</option>
+                        <option value="🚗">🚗 Salida / Paseo</option>
+                        <option value="👑">👑 Deseo concedido</option>
+                    </select>
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeCreateModal()" class="w-1/2 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition">Cancelar</button>
+                    <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-gradient-to-r from-romantic-500 to-romantic-600 text-white font-semibold text-xs shadow-md hover:shadow-lg transition">Guardar Cupón</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: HISTORY -->
+    <div id="modal-history" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl relative border border-romantic-200 max-h-[80vh] flex flex-col">
+            <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 w-8 h-8 rounded-full flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+            <div class="text-center mb-4 shrink-0">
+                <h3 class="text-xl font-bold text-gray-800 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-clock-rotate-left text-romantic-500"></i>
+                    <span>Historial de Canjeados</span>
+                </h3>
+            </div>
+
+            <div id="history-list" class="space-y-3 overflow-y-auto pr-1 flex-grow my-2 text-xs">
+            </div>
+
+            <div class="pt-4 border-t border-gray-100 flex justify-between items-center shrink-0">
+                <button onclick="resetAllCoupons()" class="text-red-500 hover:text-red-700 font-semibold text-xs flex items-center gap-1">
+                    <i class="fa-solid fa-trash-can"></i> Reiniciar todo
+                </button>
+                <button onclick="closeHistoryModal()" class="px-4 py-2 rounded-xl bg-gray-100 text-gray-700 font-semibold text-xs hover:bg-gray-200 transition">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        const CURRENT_VERSION = 'v3_phone_set';
+        const DEFAULT_PHONE = '5219971583625'; // Número preconfigurado
+
+        const DEFAULT_COUPONS = [
+            {
+                id: 'coupon-1',
+                title: 'Maratón de Películas y Series',
+                description: 'Tú eliges qué ver, la botana y tienes control absoluto del control remoto sin reclamos.',
+                icon: '🎬',
+                category: 'Entretenimiento',
+                redeemed: false,
+                redeemedAt: null
+            },
+            {
+                id: 'coupon-2',
+                title: 'Tu Postre o Antojo Favorito',
+                description: 'Vale por ir por tu helado, pastel o antojito dulce preferido a la hora que quieras.',
+                icon: '🍦',
+                category: 'Comida',
+                redeemed: false,
+                redeemedAt: null
+            },
+            {
+                id: 'coupon-3',
+                title: 'Pase Libre de Discusión',
+                description: 'Ganas esta pequeña discusión automáticamente. ¡Sin preguntas ni argumentos!',
+                icon: '🕊️',
+                category: 'Especial',
+                redeemed: false,
+                redeemedAt: null
+            },
+            {
+                id: 'coupon-4',
+                title: 'Masaje Relajante VIP',
+                description: 'Vale por un masaje de 20 minutos en la espalda o cuello con aceites o crema.',
+                icon: '💆‍♂️',
+                category: 'Relax',
+                redeemed: false,
+                redeemedAt: null
+            },
+            {
+                id: 'coupon-5',
+                title: 'Cena / Comida a Domicilio',
+                description: 'Pedimos tu comida rápida favorita (Pizza, Hamburguesas, Tacos) para disfrutar en cama.',
+                icon: '🍕',
+                category: 'Comida',
+                redeemed: false,
+                redeemedAt: null
+            },
+            {
+                id: 'coupon-6',
+                title: 'Tarde Familiar',
+                description: 'Vale para pasar una linda tarde familiar y salir a jugar con Fabiancito.',
+                icon: '🧸',
+                category: 'Tiempo Libre',
+                redeemed: false,
+                redeemedAt: null
+            }
+        ];
+
+        let coupons = [];
+        let currentSelectingCouponId = null;
+        let whatsappNumber = DEFAULT_PHONE;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadCoupons();
+            loadPhoneNumber();
+            renderCoupons();
+            createFloatingHearts();
+        });
+
+        function createFloatingHearts() {
+            const container = document.getElementById('hearts-container');
+            const icons = ['❤️', '💖', '💕', '💗', '🌸'];
+            
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerText = icons[Math.floor(Math.random() * icons.length)];
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.animationDuration = `${6 + Math.random() * 8}s`;
+                heart.style.animationDelay = `${Math.random() * 5}s`;
+                heart.style.fontSize = `${14 + Math.random() * 18}px`;
+                container.appendChild(heart);
+            }
+        }
+
+        function loadCoupons() {
+            const savedVersion = localStorage.getItem('love_coupons_version');
+            
+            if (savedVersion !== CURRENT_VERSION) {
+                localStorage.removeItem('love_coupons_data');
+                localStorage.setItem('love_coupons_version', CURRENT_VERSION);
+            }
+
+            const saved = localStorage.getItem('love_coupons_data');
+            if (saved) {
+                try {
+                    coupons = JSON.parse(saved);
+                } catch (e) {
+                    coupons = [...DEFAULT_COUPONS];
+                }
+            } else {
+                coupons = [...DEFAULT_COUPONS];
+                saveCoupons();
+            }
+        }
+
+        function saveCoupons() {
+            localStorage.setItem('love_coupons_data', JSON.stringify(coupons));
+        }
+
+        function loadPhoneNumber() {
+            const savedPhone = localStorage.getItem('love_coupons_phone');
+            if (savedPhone) {
+                whatsappNumber = savedPhone;
+            } else {
+                whatsappNumber = DEFAULT_PHONE;
+                localStorage.setItem('love_coupons_phone', DEFAULT_PHONE);
+            }
+            document.getElementById('phone-input').value = whatsappNumber;
+        }
+
+        function savePhoneNumber(val) {
+            whatsappNumber = val.trim().replace(/[^0-9]/g, '');
+            localStorage.setItem('love_coupons_phone', whatsappNumber);
+        }
+
+        function renderCoupons() {
+            const grid = document.getElementById('coupons-grid');
+            grid.innerHTML = '';
+
+            let activeCount = 0;
+            let redeemedCount = 0;
+
+            coupons.forEach(coupon => {
+                if (coupon.redeemed) redeemedCount++;
+                else activeCount++;
+
+                const card = document.createElement('div');
+                card.className = `coupon-ticket rounded-2xl p-5 shadow-sm border transition-all duration-300 relative overflow-hidden flex flex-col justify-between ${
+                    coupon.redeemed 
+                        ? 'bg-gray-50/90 border-gray-200 grayscale-[0.3]' 
+                        : 'bg-white border-romantic-200 hover:shadow-xl hover:-translate-y-1'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-start mb-3">
+                            <span class="text-2xl">${coupon.icon}</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full ${
+                                coupon.redeemed ? 'bg-gray-200 text-gray-600' : 'bg-romantic-100 text-romantic-700'
+                            }">${coupon.category}</span>
+                        </div>
+
+                        <h3 class="text-lg font-bold text-gray-800 font-cursive leading-snug mb-1">${coupon.title}</h3>
+                        <p class="text-xs text-gray-600 leading-relaxed mb-4">${coupon.description}</p>
+                    </div>
+
+                    ${coupon.redeemed ? `
+                        <div class="mt-2 pt-3 border-t border-dashed border-gray-200 flex items-center justify-between">
+                            <div class="text-[10px] text-gray-400">
+                                Canjeado: <br><span class="font-semibold text-gray-600">${coupon.redeemedAt || 'Fecha N/A'}</span>
+                            </div>
+                            <div class="border-2 border-dashed border-romantic-600 text-romantic-600 font-black text-xs px-2 py-0.5 rounded stamp-redeemed">
+                                CANJEADO
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="mt-2 pt-3 border-t border-dashed border-romantic-100">
+                            <button onclick="openRedeemModal('${coupon.id}')" 
+                                    class="w-full py-2 px-4 bg-gradient-to-r from-romantic-500 to-romantic-600 hover:from-romantic-600 hover:to-romantic-700 text-white font-semibold text-xs rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 active:scale-95">
+                                <i class="fa-solid fa-gift"></i>
+                                <span>Canjear Cupón</span>
+                            </button>
+                        </div>
+                    `}
+                `;
+
+                grid.appendChild(card);
+            });
+
+            document.getElementById('count-active').innerText = activeCount;
+            document.getElementById('count-redeemed').innerText = redeemedCount;
+        }
+
+        function openRedeemModal(id) {
+            const coupon = coupons.find(c => c.id === id);
+            if (!coupon) return;
+
+            currentSelectingCouponId = id;
+            document.getElementById('modal-coupon-title').innerText = `${coupon.icon} ${coupon.title}`;
+            document.getElementById('modal-coupon-desc').innerText = coupon.description;
+            document.getElementById('modal-custom-note').value = '';
+
+            const modal = document.getElementById('modal-redeem');
+            const content = document.getElementById('modal-redeem-content');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('scale-95', 'opacity-0');
+                content.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeRedeemModal() {
+            const modal = document.getElementById('modal-redeem');
+            const content = document.getElementById('modal-redeem-content');
+            
+            content.classList.remove('scale-100', 'opacity-100');
+            content.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+        }
+
+        function confirmRedeem() {
+            if (!currentSelectingCouponId) return;
+
+            const coupon = coupons.find(c => c.id === currentSelectingCouponId);
+            if (!coupon) return;
+
+            const now = new Date();
+            const formattedDate = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            coupon.redeemed = true;
+            coupon.redeemedAt = formattedDate;
+
+            saveCoupons();
+            renderCoupons();
+            closeRedeemModal();
+
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#ff477e', '#ff70a6', '#ffd166', '#ffffff']
+            });
+
+            const note = document.getElementById('modal-custom-note').value.trim();
+            let text = `¡Hola mi amor! ❤️\n\nAcabo de cambiar el siguiente cupón de amor:\n🎟️ *${coupon.title}*\n\n"${coupon.description}"`;
+            
+            if (note) {
+                text += `\n\n📝 *Nota extra:* ${note}`;
+            }
+
+            const encodedText = encodeURIComponent(text);
+            const waUrl = whatsappNumber 
+                ? `https://wa.me/${whatsappNumber}?text=${encodedText}` 
+                : `https://wa.me/?text=${encodedText}`;
+
+            setTimeout(() => {
+                window.open(waUrl, '_blank');
+            }, 600);
+        }
+
+        function openCreateModal() {
+            document.getElementById('modal-create').classList.remove('hidden');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('modal-create').classList.add('hidden');
+        }
+
+        function handleCreateCoupon(e) {
+            e.preventDefault();
+            const title = document.getElementById('new-title').value.trim();
+            const desc = document.getElementById('new-desc').value.trim();
+            const icon = document.getElementById('new-icon').value;
+
+            if (!title || !desc) return;
+
+            const newCoupon = {
+                id: 'coupon-' + Date.now(),
+                title: title,
+                description: desc,
+                icon: icon,
+                category: 'Personalizado',
+                redeemed: false,
+                redeemedAt: null
+            };
+
+            coupons.unshift(newCoupon);
+            saveCoupons();
+            renderCoupons();
+            closeCreateModal();
+
+            document.getElementById('new-title').value = '';
+            document.getElementById('new-desc').value = '';
+        }
+
+        function openHistoryModal() {
+            const list = document.getElementById('history-list');
+            list.innerHTML = '';
+
+            const redeemedList = coupons.filter(c => c.redeemed);
+
+            if (redeemedList.length === 0) {
+                list.innerHTML = '<p class="text-center text-gray-400 py-6">Aún no has canjeado ningún cupón ❤️</p>';
+            } else {
+                redeemedList.forEach(c => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 bg-gray-50 rounded-xl border border-gray-100 flex items-center justify-between';
+                    item.innerHTML = `
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-lg">${c.icon}</span>
+                            <div>
+                                <h4 class="font-bold text-gray-800 leading-none">${c.title}</h4>
+                                <p class="text-[10px] text-gray-400 mt-0.5">${c.redeemedAt}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Canjeado</span>
+                    `;
+                    list.appendChild(item);
+                });
+            }
+
+            document.getElementById('modal-history').classList.remove('hidden');
+        }
+
+        function closeHistoryModal() {
+            document.getElementById('modal-history').classList.add('hidden');
+        }
+
+        function resetAllCoupons() {
+            if (confirm('¿Estás seguro de que deseas reiniciar todos los cupones? Se desmarcarán los canjeados.')) {
+                coupons = [...DEFAULT_COUPONS];
+                saveCoupons();
+                renderCoupons();
+                closeHistoryModal();
+            }
+        }
+    </script>
+</body>
+</html>
